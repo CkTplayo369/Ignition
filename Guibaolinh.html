@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Love Confession</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(to bottom, #ff7e5f, #feb47b); /* Gradient dọc */
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+      color: white;
+      font-family: 'Arial', sans-serif;
+      z-index: 1;
+    }
+
+    .container h1 {
+      font-size: 3em;
+      margin: 0;
+    }
+
+    .container p {
+      font-size: 1.5em;
+      margin: 20px 0;
+    }
+
+    .heart {
+      position: absolute;
+      width: 50px; /* Đảm bảo kích thước trái tim không thay đổi */
+      height: 45px; /* Đảm bảo kích thước trái tim không thay đổi */
+      background: red;
+      transform: rotate(-45deg);
+      animation: beat 1s infinite, fadeOut 5s forwards; /* Thêm fadeOut animation */
+      opacity: 1;
+    }
+
+    .heart:before,
+    .heart:after {
+      content: '';
+      position: absolute;
+      width: 50px; /* Đảm bảo kích thước trái tim không thay đổi */
+      height: 45px; /* Đảm bảo kích thước trái tim không thay đổi */
+      background: red;
+      border-radius: 50%;
+    }
+
+    .heart:before {
+      top: -25px;
+      left: 0;
+    }
+
+    .heart:after {
+      left: 25px;
+      top: 0;
+    }
+
+    @keyframes beat {
+      0%, 100% {
+        transform: scale(1) rotate(-45deg);
+      }
+      50% {
+        transform: scale(1.1) rotate(-45deg);
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    .fade-in {
+      animation: fadeIn 3s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container fade-in">
+  <h1>Dành Cho Bảo Linh</h1>
+  <p>Vị Trí Của Cậu Trong Trái Tim Tớ Đã Vượt Quá Phạm Vi Mà Từ Thích Có Thể Bao Chùm Rồi</p>
+  <p>Có lẽ...</p>
+  <p>Tớ Yêu Cậu!</p>
+</div>
+
+<script>
+  const heartContainer = document.createElement('div');
+  heartContainer.style.position = 'absolute';
+  heartContainer.style.width = '100%';
+  heartContainer.style.height = '100%';
+  heartContainer.style.top = 0;
+  heartContainer.style.left = 0;
+  heartContainer.style.overflow = 'hidden';
+  heartContainer.style.pointerEvents = 'none';
+
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.style.left = `${Math.random() * 100}%`;
+    heart.style.top = `${Math.random() * 100}%`;
+    heart.style.width = '50px'; /* Kích thước không thay đổi */
+    heart.style.height = '45px'; /* Kích thước không thay đổi */
+    heart.style.animationDelay = `${Math.random() * 5}s`;
+    heartContainer.appendChild(heart);
+
+    setTimeout(() => {
+      heart.remove();
+    }, 5000);
+  }
+
+  setInterval(createHeart, 300);
+  document.body.appendChild(heartContainer);
+</script>
+
+</body>
+</html>
