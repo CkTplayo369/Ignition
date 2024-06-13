@@ -11,7 +11,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(to bottom, #ff7e5f, #feb47b); /* Gradient dọc */
+      background: linear-gradient(to bottom, #ff7e5f, #feb47b);
       overflow: hidden;
     }
 
@@ -34,11 +34,11 @@
 
     .heart {
       position: absolute;
-      width: 50px; /* Đảm bảo kích thước trái tim không thay đổi */
-      height: 45px; /* Đảm bảo kích thước trái tim không thay đổi */
+      width: 50px;
+      height: 45px;
       background: red;
       transform: rotate(-45deg);
-      animation: beat 1s infinite, fadeOut 5s forwards; /* Thêm fadeOut animation */
+      animation: beat 1s infinite, fadeOut 5s forwards;
       opacity: 1;
     }
 
@@ -46,8 +46,8 @@
     .heart:after {
       content: '';
       position: absolute;
-      width: 50px; /* Đảm bảo kích thước trái tim không thay đổi */
-      height: 45px; /* Đảm bảo kích thước trái tim không thay đổi */
+      width: 50px;
+      height: 45px;
       background: red;
       border-radius: 50%;
     }
@@ -108,9 +108,9 @@
 <div id="player" style="display:none;"></div>
 
 <div class="container fade-in">
-  <h1>Dành Cho Bảo Linh</h1>
-  <p>Trong lòng tớ đã không còn hình bóng ai ngoài cậu</p>
-  <p>Có lẽ...</p>
+  <h1>Ừm...</h1>
+  <p>"Dành cho em, dành hết ân tình anh mang một đời"</p>
+  <p>Bảo Linh, tớ muốn nói...</p>
   <p>Tớ Yêu Cậu!</p>
 </div>
 
@@ -129,13 +129,13 @@
     player = new YT.Player('player', {
       height: '0',
       width: '0',
-      videoId: 'Z_FB3FZlrF8', // Thay đổi videoId ở đây
+      videoId: 'IhpKpSzwvXU',
       events: {
         'onReady': onPlayerReady
       },
       playerVars: {
         'loop': 1,
-        'playlist': 'Z_FB3FZlrF8' // Thay đổi playlist ở đây
+        'playlist': 'IhpKpSzwvXU'
       }
     });
   }
@@ -165,8 +165,8 @@
     heart.classList.add('heart');
     heart.style.left = `${Math.random() * 100}%`;
     heart.style.top = `${Math.random() * 100}%`;
-    heart.style.width = '50px'; /* Kích thước không thay đổi */
-    heart.style.height = '45px'; /* Kích thước không thay đổi */
+    heart.style.width = '50px';
+    heart.style.height = '45px';
     heart.style.animationDelay = `${Math.random() * 5}s`;
     heartContainer.appendChild(heart);
 
