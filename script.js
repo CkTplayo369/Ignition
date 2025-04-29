@@ -1,19 +1,19 @@
 function playGame(playerChoice) {
-    const choices = ["kéo", "búa", "bao"];
+    const choices = ["Scissor", "Rock", "Paper"];
     const computerChoice = choices[Math.floor(Math.random() * 3)];
 
     let result = "";
 
     if (playerChoice === computerChoice) {
-        result = "T nhả tí thôi";
+        result = "I WILL CRUSH YOU";
     } else if (
-        (playerChoice === "kéo" && computerChoice === "bao") ||
-        (playerChoice === "búa" && computerChoice === "kéo") ||
-        (playerChoice === "bao" && computerChoice === "búa")
+        (playerChoice === "Scissor" && computerChoice === "Paper") ||
+        (playerChoice === "Rock" && computerChoice === "Scissor") ||
+        (playerChoice === "Paper" && computerChoice === "Rock")
     ) {
-        result = "Rùa";
+        result = "I'd win";
     } else {
-        result = "Non thì nín";
+        result = "Cmon lil kid";
     }
 
     document.getElementById("result").innerText = `Bạn chọn: ${playerChoice.toUpperCase()} 
