@@ -16,7 +16,7 @@ function playGame(playerChoice) {
         result = "Cmon lil kid";
     }
 
-    document.getElementById("result").innerText = `Bạn chọn: ${playerChoice.toUpperCase()} 
-    - Máy chọn: ${computerChoice.toUpperCase()} 
+    document.getElementById("result").innerText = `You: ${playerChoice.toUpperCase()} 
+    - The bot: ${computerChoice.toUpperCase()} 
     => ${result}`;
 }
