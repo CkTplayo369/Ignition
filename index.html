@@ -1,21 +1,249 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPS</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>RPS Card Game - Clean State Version</title>
+<style>
+  body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+  .section { margin-bottom: 20px; }
+  button { margin: 5px; padding: 10px 20px; font-size: 18px; }
+  .log { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll; text-align: left; }
+</style>
 </head>
 <body>
-    <h1>RPS</h1>
-    <p>Choose one:</p>
-    <div class="choices">
-        <button onclick="playGame('Scissor')">✌️ Scissor</button>
-        <button onclick="playGame('Rock')">✊ Rock</button>
-        <button onclick="playGame('Paper')">🖐️ Paper</button>
-    </div>
-    <p id="result">result</p>
 
-    <script src="script.js"></script>
+<h1>RPS Card Game - Fixed Flow</h1>
+
+<div class="section">
+  <h2>Player: <span id="playerName"></span></h2>
+  <div id="playerHP"></div>
+  <div id="playerSkills"></div>
+</div>
+
+<div class="section">
+  <h2>VS</h2>
+</div>
+
+<div class="section">
+  <h2>Enemy: <span id="enemyName"></span></h2>
+  <div id="enemyHP"></div>
+  <div id="enemySkills"></div>
+</div>
+
+<div class="section">
+  <div id="status">RPS Phase</div>
+</div>
+
+<div class="section">
+  <button onclick="playRPS('rock')">Rock</button>
+  <button onclick="playRPS('paper')">Paper</button>
+  <button onclick="playRPS('scissors')">Scissors</button>
+</div>
+
+<div class="section">
+  <button onclick="useBaseSkill()">Use Base Skill</button>
+  <button onclick="useUltSkill()">Use Ultimate Skill</button>
+</div>
+
+<div class="log" id="log"></div>
+
+<script>
+class Character {
+  constructor(name, hp, baseName, baseDesc, baseEffect, ultiName, ultiDesc, ultiEffect) {
+    this.name = name;
+    this.maxHP = hp;
+    this.hp = hp;
+    this.baseName = baseName;
+    this.baseDesc = baseDesc;
+    this.baseEffect = baseEffect;
+    this.ultiName = ultiName;
+    this.ultiDesc = ultiDesc;
+    this.ultiEffect = ultiEffect;
+    this.ultiBuff = 0;
+  }
+}
+
+let allCharacters = [
+  new Character("Playo", 180, "I'm The EMPEROR", "+20 dmg to own Ulti (Hiện tại: 0)", (self, enemy) => {
+    self.ultiBuff += 20;
+    self.baseDesc = `+20 dmg to own Ulti (Hiện tại: ${self.ultiBuff})`;
+    log(`Playo dùng Base: buff +20 dmg Ulti. Tổng cộng: ${self.ultiBuff}`);
+  }, "You Think You Can?", "Gây 150+ dmg", (self, enemy) => {
+    const dmg = 150 + self.ultiBuff;
+    enemy.hp -= dmg;
+    self.ultiBuff = 0;
+    self.baseDesc = "+20 dmg to own Ulti (Hiện tại: 0)";
+    playerGlobalLock += 1;
+    log(`Playo dùng Ulti gây ${dmg} dmg.`);
+  }),
+
+  new Character("Dragie", 200, "Gimme ur Ball", "Gây 30 dmg", (self, enemy) => {
+    enemy.hp -= 30;
+    log("Dragie dùng Base: gây 30 dmg.");
+  }, "Nah Blud", "Tự trừ 100 HP, khóa địch 2 lượt RPS thắng + khóa bản thân 1 lượt", (self, enemy) => {
+    self.hp -= 100;
+    enemyGlobalLock += 2;
+    playerGlobalLock += 1;
+    log("Dragie dùng Ulti: mất 100 HP, đối thủ phải thắng 2 lượt RPS để mở khóa và bản thân bị khóa 1 lượt!");
+  }),
+
+  new Character("Jeffe", 170, "Noice", "Gây 60 dmg", (self, enemy) => {
+    enemy.hp -= 60;
+    log("Jeffe dùng Base: gây 60 dmg.");
+  }, "What a LUCK", "Gây 100 dmg, gamble 50/50", (self, enemy) => {
+    enemy.hp -= 100;
+    log("Jeffe dùng Ulti: gây 100 dmg. Gamble...");
+    if (Math.random() < 0.5) {
+      self.hp -= 40;
+      enemy.hp += 20;
+      log("Gamble thất bại: Jeffe mất 40 HP.");
+    } else {
+      enemy.hp -= 100;
+      log("Gamble thành công: thêm 100 dmg!");
+    }
+    playerGlobalLock += 1;
+  })
+];
+
+let playerDeck = [], enemyDeck = [];
+let player, enemy;
+let gamePhase = "rps";
+let playerGlobalLock = 0;
+let enemyGlobalLock = 0;
+
+function log(text) {
+  const logDiv = document.getElementById('log');
+  logDiv.innerHTML += text + '<br>';
+  logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+function updateDisplay() {
+  player.hp = Math.max(0, player.hp);
+  enemy.hp = Math.max(0, enemy.hp);
+
+  document.getElementById('playerName').innerText = player.name;
+  document.getElementById('playerHP').innerText = `HP: ${player.hp}/${player.maxHP}`;
+  document.getElementById('playerSkills').innerHTML = `Base: ${player.baseName} (${player.baseDesc})<br>Ulti: ${player.ultiName} (${player.ultiDesc})`;
+
+  document.getElementById('enemyName').innerText = enemy.name;
+  document.getElementById('enemyHP').innerText = `HP: ${enemy.hp}/${enemy.maxHP}`;
+  document.getElementById('enemySkills').innerHTML = `Base: ${enemy.baseName} (${enemy.baseDesc})<br>Ulti: ${enemy.ultiName} (${enemy.ultiDesc})`;
+
+  document.getElementById('status').innerText = `Phase: ${gamePhase}`;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function initGame() {
+  let deck = shuffle([...allCharacters, ...allCharacters]);
+  playerDeck = deck.splice(0, 3);
+  enemyDeck = deck.splice(0, 3);
+  player = playerDeck.shift();
+  enemy = enemyDeck.shift();
+  gamePhase = "rps";
+  updateDisplay();
+  log("Trận đấu bắt đầu!");
+}
+
+function playRPS(choice) {
+  if (gamePhase !== "rps") return;
+  const enemyChoice = ["rock", "paper", "scissors"][Math.floor(Math.random() * 3)];
+  log(`Bạn: ${choice} | Enemy: ${enemyChoice}`);
+  if (choice === enemyChoice) return log("Hòa, chọn lại!");
+  const win = (choice === 'rock' && enemyChoice === 'scissors') ||
+              (choice === 'paper' && enemyChoice === 'rock') ||
+              (choice === 'scissors' && enemyChoice === 'paper');
+  if (win) {
+    if (playerGlobalLock > 0) {
+      playerGlobalLock--;
+      log("Bạn đang bị khóa, cần thắng thêm " + playerGlobalLock + " lượt RPS để mở!");
+      if (playerGlobalLock === 0) log("Bạn đã được mở khóa hoàn toàn!");
+      gamePhase = "rps";
+    } else {
+      gamePhase = "playerSkill";
+      log("Bạn thắng RPS, chọn skill.");
+    }
+  } else {
+    if (enemyGlobalLock > 0) {
+      enemyGlobalLock--;
+      log("Enemy đang bị khóa, cần thắng thêm " + enemyGlobalLock + " lượt để mở!");
+      gamePhase = "rps";
+    } else {
+      gamePhase = "enemySkill";
+      log("Enemy thắng RPS!");
+      setTimeout(enemyTurn, 1000);
+    }
+  }
+  updateDisplay();
+}
+
+function useBaseSkill() {
+  if (gamePhase !== "playerSkill") return;
+  if (playerGlobalLock > 0) return log("Skill đang bị khóa!");
+  player.baseEffect(player, enemy);
+  endTurn();
+}
+
+function useUltSkill() {
+  if (gamePhase !== "playerSkill") return;
+  if (playerGlobalLock > 0) return log("Skill đang bị khóa!");
+  player.ultiEffect(player, enemy);
+  endTurn();
+}
+
+function enemyTurn() {
+  if (gamePhase !== "enemySkill") return;
+  if (enemyGlobalLock > 0) {
+    log("Enemy đang bị khóa kỹ năng, bỏ lượt.");
+    endTurn();
+    return;
+  }
+  if (enemy.hp < 80 || Math.random() > 0.5) {
+    enemy.ultiEffect(enemy, player);
+  } else {
+    enemy.baseEffect(enemy, player);
+  }
+  endTurn();
+}
+
+function endTurn() {
+  checkDeath();
+  if (gamePhase !== "end") {
+    gamePhase = "rps";
+    updateDisplay();
+  }
+}
+
+function checkDeath() {
+  if (player.hp <= 0) {
+    if (playerDeck.length > 0) {
+      player = playerDeck.shift();
+      log(`Bạn chuyển sang ${player.name}`);
+    } else {
+      log("Bạn đã thua trận!");
+      gamePhase = "end";
+    }
+  }
+  if (enemy.hp <= 0) {
+    if (enemyDeck.length > 0) {
+      enemy = enemyDeck.shift();
+      log(`Enemy chuyển sang ${enemy.name}`);
+    } else {
+      log("Bạn đã thắng trận!");
+      gamePhase = "end";
+    }
+  }
+  updateDisplay();
+}
+
+initGame();
+</script>
+
 </body>
 </html>
